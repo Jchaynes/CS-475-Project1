@@ -3,11 +3,11 @@ import collections
 import string
 
 inputFiles  = [   'ciphertext_3' , #not shift, frequencies between ~2-4,3,5,8, vigenere? MUST BE STREAM
-                #  'ciphertext_8' , #decrypted, not shift, normal frequency, vigenere, key "APP"
+                #   'ciphertext_8' , #decrypted, not shift, normal frequency, vigenere, key "APP"
                 #   'ciphertext_13', #decrypted, shift 14
-                #   'ciphertext_18', #decrypted, not shift normal frequency, permutation, 10x8 grid
-                #  'ciphertext_23', #Decrypted, transform 8x3 grid #not shift, normal freqeuency
-                #  'ciphertext_28'  #decrypted, not shift, frequencies between ~2-4, ~5-7, probably key length 8,vigenere, key found
+                #   'ciphertext_18', #decrypted, not shift normal frequency, permutation, 10x4 grid
+                #   'ciphertext_23', #Decrypted, transform 8x3 grid #not shift, normal freqeuency
+                #   'ciphertext_28'  #decrypted, not shift, frequencies between ~2-4, ~5-7, probably key length 8,vigenere, key found
                  ]
 
 
@@ -55,11 +55,11 @@ def shiftChar(c,shift):
 
 def testStream(text,shift=0):
     prevChar = text[0] 
-    prevChar = chr(shiftChar(prevChar, shift))
+    # prevChar = chr(shiftChar(prevChar, shift))
     charValues = [prevChar]
     charValue = 0
     # print(text[:10])
-    #for stream cipher, we will assume first letter is unencrypted, each subsequent letter is shifted by the an amount including the previous letter.
+    #for stream cipher, we will assume first letter is unencrypted, each subsequent letter is shifted by the an amount including the previous letter ciphertext value.
     for c in text[1:20]:
         # normalizeShift = (ord(prevChar) - ord('A') + shift) % 26
         # normalizeShift = ord(prevChar) - 65
@@ -72,7 +72,7 @@ def testStream(text,shift=0):
         # char = chr(charValue) 
        # print("charValue is %d")
         # charValues.append(char)
-        diff = ord(c) - ord(prevChar)
+        diff = (ord(c) - ord(prevChar) - shift) % 26
         if diff < 0:
             diff += 26
         #print("Old Letter might have been : ", chr(diff+65))
@@ -82,6 +82,22 @@ def testStream(text,shift=0):
         prevChar = c
     #print(''.join(charValues))
     # print(charCount(''.join(charValues)))
+    return ''.join(charValues)
+
+def plaintextShiftStream(text, shift=0):
+    #Unshift each nth character in sequence by the unshifted n-1 character plaintext value.
+    normalizeShift = (ord(text[0]) - shift - 65) % 26 + ord('A')
+    prevChar = chr(normalizeShift)
+    charValues = [prevChar]
+    for c in text[1:]:
+        diff = ord(c) - ord(prevChar)
+        
+        if diff < 0:
+            diff += 26
+        char = chr(diff + 65)
+        charValues.append(char)
+       # print("PrevChar: %c\tdiff:  %d\tchar: %c" % (prevChar, diff, c))
+        prevChar = char
     return ''.join(charValues)
 
 def vigenereKeyLengthTest(text):
@@ -201,7 +217,6 @@ def untransform(text,numRows, numColumns):
         #print(decipheredBlockText)
     #print("Result of untransform: " , resultText)
     return resultText        
-
     
 def verifyEnglish(text, mode):
     foundWords = 0
@@ -220,22 +235,30 @@ def main():
         line = f.readline().strip('\n')
         f.close()
         cipherTexts.append(line)
-        streambrute = "BVGRWNBH"
+        
+        plainshiftBrute = "BVFWQWFU"
         # streamdecrypt = testStream(line,0)
         for i in range(0,26):
             # print(shiftCipher(streamdecrypt,i))
-            # resultText = testStream(line,i)
-            resultText = testStream(streambrute,i)
-            #print(resultText)
+            # print(plaintextShiftStream(line,i))
+            # resultText = plaintextShiftStream(line,i)
+            resultText = testStream(line,i)
+            print(resultText)
+            
             for i in range(0,26):
-                #verifyEnglish(shiftCipher(resultText,i),"Stream")
-                print(shiftCipher(resultText,i))
-        #print(line)
-        #print(charCount(line))
+                verifyEnglish(shiftCipher(resultText,i),"Stream")
+                # print(shiftCipher(resultText,i))
+        # print(line)
+        # print(charCount(line))
+
+        #Test strings for possible stream encryption Algorithm - both plaintext are "BULLFROG"
+        # streambrute = "BVGRWNBH"
+        # print(plaintextShiftStream(plainshiftBrute, 0))
+        # print(testStream(streambrute,0))
         
         #TEST STRING FOR untransform Algorithm "THEQUICKBROWNFOXJUMPEDOVERTHELAZYDOG, in a 4x3 box permutation"
+        
         #untransform("TQCRHUKOEIBWNXMDFJPOOUEVEHADREZOTLYG",4,3)
-     
      
         #Any transform less than 2 x 2 is trivial to decrypt, assume at least 2 x 2
         # i = 1
@@ -246,6 +269,7 @@ def main():
         #         verifyEnglish(result, "transform %d %d" %(i,j))
         #     i += 1
      
+
         #CiperText 3 Settings#Must be the stream cipher
         # print(charCount(line))
         # # streamNormalizedText = testStream(line,0)
@@ -259,7 +283,6 @@ def main():
 
         #END CIPHERTEXT 3 SETTINGS#
 
-
         
         #CipherText 8 Settings
 
@@ -271,10 +294,13 @@ def main():
 
         #END CIPHERTEXT 8#
 
+
         #CipherText 13 Settings
         
         # for shift in range(1,26):
-        #     shiftCipher(line,shift)
+        #     decryptedText = shiftCipher(line,shift)
+        #     verifyEnglish(decryptedText,"Shift %d" %(shift))
+        
         #END CIPHERTEXT 13#
 
         #CIPHERTEXT 18 SETTINGS
@@ -299,11 +325,4 @@ def main():
         #print("Decrypted Frequencies: ")
         #print(decrypted-28Text)
 
-     
-        
-   
-         
-        
-        #print(''.join(streamResult))
-        #print(charCount(streamResult))
 main()
