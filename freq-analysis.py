@@ -53,50 +53,38 @@ def shiftCipher(text,shift):
 def shiftChar(c,shift):
     return (ord(c) - 65 - shift) % 26 + 65
 
-def testStream(text,shift=0):
+def testStream(text,shift):
     prevChar = text[0] 
-    # prevChar = chr(shiftChar(prevChar, shift))
-    charValues = [prevChar]
-    charValue = 0
-    # print(text[:10])
+    
+    normalizeFirstCharShift = (ord(prevChar) - shift -65 ) % 26
+    firstChar = chr(normalizeFirstCharShift + 65)
+    
+    # print("Performing normalizeShift of %c, %c, %d,%d" %(text[0], prevChar, shift,normalizeShift))
+    charValues = [firstChar]
     #for stream cipher, we will assume first letter is unencrypted, each subsequent letter is shifted by the an amount including the previous letter ciphertext value.
-    for c in text[1:20]:
-        # normalizeShift = (ord(prevChar) - ord('A') + shift) % 26
-        # normalizeShift = ord(prevChar) - 65
-        # normalizeShift = shiftChar(c, ord(prevChar) - 65)
-        # if normalizeShift < 0:
-        #     normalizeShift *= -1
-        #     normalizeShift %= 26
-        # print("Shifting letter by normalized shift of ", normalizeShift - 65)
-        # charValue = shiftChar(c, normalizeShift)
-        # char = chr(charValue) 
-       # print("charValue is %d")
-        # charValues.append(char)
-        diff = (ord(c) - ord(prevChar) - shift) % 26
+    for c in text[1:80]:
+        diff = (ord(c) - ord(prevChar)) # % 26
         if diff < 0:
             diff += 26
-        #print("Old Letter might have been : ", chr(diff+65))
+        # print("Diff is : ", diff)
         char = chr(diff + 65)
         charValues.append(char) 
-        # print("Current Step: %c, %c, %d" % (prevChar, c, diff))
         prevChar = c
-    #print(''.join(charValues))
-    # print(charCount(''.join(charValues)))
     return ''.join(charValues)
 
 def plaintextShiftStream(text, shift=0):
     #Unshift each nth character in sequence by the unshifted n-1 character plaintext value.
-    normalizeShift = (ord(text[0]) - shift - 65) % 26 + ord('A')
+    normalizeShift = (ord(text[0]) - 65 - shift) % 26 + ord('A')
     prevChar = chr(normalizeShift)
     charValues = [prevChar]
     for c in text[1:]:
-        diff = ord(c) - ord(prevChar)
-        
+        diff = (ord(c) - ord(prevChar))
         if diff < 0:
             diff += 26
+        diff %= 26
+        # print("%c - %c = %d, %c" %(c, prevChar, diff, chr(diff+65)))
         char = chr(diff + 65)
         charValues.append(char)
-       # print("PrevChar: %c\tdiff:  %d\tchar: %c" % (prevChar, diff, c))
         prevChar = char
     return ''.join(charValues)
 
@@ -236,25 +224,27 @@ def main():
         f.close()
         cipherTexts.append(line)
         
-        plainshiftBrute = "BVFWQWFU"
-        # streamdecrypt = testStream(line,0)
-        for i in range(0,26):
-            # print(shiftCipher(streamdecrypt,i))
-            # print(plaintextShiftStream(line,i))
-            # resultText = plaintextShiftStream(line,i)
-            resultText = testStream(line,i)
-            print(resultText)
-            
-            for i in range(0,26):
-                verifyEnglish(shiftCipher(resultText,i),"Stream")
-                # print(shiftCipher(resultText,i))
-        # print(line)
-        # print(charCount(line))
+        # dummyText = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG" #Dummy text to test stream cipher
+        # encryptedbyPlainText = chr(ord(dummyText[0])+1)
+        # for c in range(1, len(dummyText)):
+        #     currChar = ord(dummyText[c]) - ord("A")
+        #     prevChar = ord(dummyText[c-1]) - ord("A")
+        #     encryptedChar = chr((currChar + prevChar) % 26 + 65)
+        #     encryptedbyPlainText += encryptedChar
+        # print(encryptedbyPlainText)
+
+        # encryptedbyCipherText = chr(ord(dummyText[0]))
+        # for c in range(1, len(dummyText)):
+        #     currChar = ord(dummyText[c]) - 65
+        #     prevChar = ord(encryptedbyCipherText[c-1]) - 65
+        #     encryptedChar = chr((prevChar + currChar) % 26 + 65)
+        #     encryptedbyCipherText += encryptedChar
+
+        # print(encryptedbyCipherText)
+
 
         #Test strings for possible stream encryption Algorithm - both plaintext are "BULLFROG"
-        # streambrute = "BVGRWNBH"
-        # print(plaintextShiftStream(plainshiftBrute, 0))
-        # print(testStream(streambrute,0))
+      
         
         #TEST STRING FOR untransform Algorithm "THEQUICKBROWNFOXJUMPEDOVERTHELAZYDOG, in a 4x3 box permutation"
         
@@ -271,16 +261,21 @@ def main():
      
 
         #CiperText 3 Settings#Must be the stream cipher
-        # print(charCount(line))
-        # # streamNormalizedText = testStream(line,0)
-        # streamResult = testStream(line)
-        # for shift in range(1,26):
-        #     streamshiftTest = shiftCipher(streamResult,shift)
-        #     #print(streamshiftTest)
-        #     # print(charCount(streamshiftTest))
-        #     verifyEnglish(streamshiftTest,"stream shift")
-        # gramSearch(line[:1000],5)
 
+        for i in range(0,26):
+            plainTextStreamAttempt = plaintextShiftStream(line,i)
+            cipherTextStreamAttempt = testStream(line,i)
+            print("%s\t%s" % (plainTextStreamAttempt[:30], cipherTextStreamAttempt[:30]))
+            # for j in range(0,26):
+            #     verifyEnglish(shiftCipher(streamAttempt,j),"Stream")
+            #     print(shiftCipher(streamAttempt,j))
+                
+                # verifyEnglish(shiftCipher(streamCipherAttempt,j),"Stream")
+            # print("\n")
+            # print("%s\t%s" % (streamAttempt.lower(), streamCipherAttempt.lower()))
+
+
+        print("DONE\n")
         #END CIPHERTEXT 3 SETTINGS#
 
         
