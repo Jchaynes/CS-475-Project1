@@ -7,7 +7,7 @@ inputFiles  = [   'ciphertext_3' , #not shift, frequencies between ~2-4,3,5,8, v
                 #   'ciphertext_13', #decrypted, shift 14
                 #   'ciphertext_18', #decrypted, not shift normal frequency, permutation, 10x4 grid
                 #   'ciphertext_23', #Decrypted, transform 8x3 grid #not shift, normal freqeuency
-                #   'ciphertext_28'  #decrypted, not shift, frequencies between ~2-4, ~5-7, probably key length 8,vigenere, key found
+                #  'ciphertext_28'  #decrypted, not shift, frequencies between ~2-4, ~5-7, probably key length 8,vigenere, key found
                  ]
 
 
@@ -63,11 +63,12 @@ def testStream(text,shift):
     charValues = [firstChar]
     #for stream cipher, we will assume first letter is unencrypted, each subsequent letter is shifted by the an amount including the previous letter ciphertext value.
     for c in text[1:80]:
-        diff = (ord(c) - ord(prevChar)) # % 26
-        if diff < 0:
-            diff += 26
-        # print("Diff is : ", diff)
-        char = chr(diff + 65)
+        # diff = (ord(c) - ord(prevChar)) # % 26
+        shiftAmount =  shift - (ord(prevChar))
+        if shiftAmount - 65 < 0:
+            shiftAmount += 26
+        # print("Shift is : ", shiftAmount)
+        char = chr(shiftAmount + 65)
         charValues.append(char) 
         prevChar = c
     return ''.join(charValues)
@@ -224,7 +225,8 @@ def main():
         f.close()
         cipherTexts.append(line)
         
-        # dummyText = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG" #Dummy text to test stream cipher
+        #dummyText = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG" #Dummy text to test stream cipher
+
         # encryptedbyPlainText = chr(ord(dummyText[0])+1)
         # for c in range(1, len(dummyText)):
         #     currChar = ord(dummyText[c]) - ord("A")
@@ -261,21 +263,86 @@ def main():
      
 
         #CiperText 3 Settings#Must be the stream cipher
-
+        print(testStream(line[:30],0))
         for i in range(0,26):
-            plainTextStreamAttempt = plaintextShiftStream(line,i)
+            # plainTextStreamAttempt = plaintextShiftStream(line,i)
             cipherTextStreamAttempt = testStream(line,i)
-            print("%s\t%s" % (plainTextStreamAttempt[:30], cipherTextStreamAttempt[:30]))
-            # for j in range(0,26):
-            #     verifyEnglish(shiftCipher(streamAttempt,j),"Stream")
-            #     print(shiftCipher(streamAttempt,j))
+            # print("%s\t%s" % (plainTextStreamAttempt[:30], cipherTextStreamAttempt[:30]))
+            for j in range(0,26):
+                verifyEnglish(shiftCipher(cipherTextStreamAttempt,j),"Stream")
+                print(shiftCipher(cipherTextStreamAttempt,j))
                 
                 # verifyEnglish(shiftCipher(streamCipherAttempt,j),"Stream")
-            # print("\n")
-            # print("%s\t%s" % (streamAttempt.lower(), streamCipherAttempt.lower()))
+            print("\n")
+            # print("%s\t%s" % (streamAttempt.lower(), cipherTextStreamAttempt.lower()))
 
 
-        print("DONE\n")
+        # print("DONE\n")
+        # encryptedStream = dummyText[0]
+        # for i in range(1,len(dummyText)):#range(0,26):
+        #     currChar = dummyText[i]
+        #     prevChar = encryptedStream[-1]
+        #     shiftBy = (26-(ord(prevChar)-65))
+        #     encryptedChar = ord(currChar) + shiftBy - 65
+        #     encryptedChar %= 26
+        #     encryptedChar = chr(encryptedChar+65)
+        #     encryptedStream+= encryptedChar
+        # #     # print("The letter %c,%d encrypted to %c,%d, shift %d" %(dummyText[i], ord(dummyText[i]), encryptedChar,ord(encryptedChar), shiftBy))
+        # print(encryptedStream)
+        # encryptedPlainStream = dummyText[0]
+        # for i in range(1, len(dummyText)):
+        #     currChar = dummyText[i]
+        #     prevChar = dummyText[i-1]
+        #     shiftBy = 26-(ord(prevChar)-65)
+        #     encryptedPlainChar = ord(currChar) + shiftBy -65
+        #     encryptedPlainChar %= 26
+        #     encryptedPlainChar = chr(encryptedPlainChar+65)
+        #     encryptedPlainStream += encryptedPlainChar
+        # print(encryptedPlainStream)
+
+
+        # for shift in range(0,26):
+        #     decryptedPlainStream = line[0]
+        #     for j in range(1, len(line[:30])):
+        #         currChar = line[j]
+        #         prevChar = decryptedPlainStream[-1]
+        #         shiftBy = shift -(ord(prevChar)-65)
+        #         decryptedPlainChar = ord(currChar) - shiftBy -65
+        #         decryptedPlainChar %= 26
+        #         decryptedPlainChar = chr(decryptedPlainChar + 65)
+        #         decryptedPlainStream += decryptedPlainChar
+        #     print(decryptedPlainStream)
+
+
+        # decryptedPlainStream = encryptedPlainStream[0]
+        # for i in range(1, len(encryptedPlainStream)):
+        #     currChar = encryptedPlainStream[i]
+        #     prevChar = decryptedPlainStream[-1]
+        #     shiftBy = 26-(ord(prevChar)-65)
+        #     decryptedPlainChar = ord(currChar) - shiftBy -65
+        #     decryptedPlainChar %= 26
+        #     decryptedPlainChar = chr(decryptedPlainChar + 65)
+        #     decryptedPlainStream += decryptedPlainChar
+        # print(decryptedPlainStream)
+
+        #Decrypt now
+        # for shift in range(0,26):
+        #     decryptedStream = encryptedStream[0]
+        #     for pos in range(1,len(encryptedStream)):
+        #         currChar = encryptedStream[pos] #line[pos]
+        #         prevChar = encryptedStream[pos-1] #line[pos-1]
+
+        #         shiftBy = shift - (ord(prevChar) -65)
+                
+        #         decryptedChar = ord(currChar) - shiftBy - 65
+        #         decryptedChar %= 26
+        #         decryptedChar = chr(decryptedChar+65)
+        #         decryptedStream+= decryptedChar
+        #         # print("Shift difference of %c and %c is %d:" %(prevChar, currChar, shiftBy))
+        #     print(decryptedStream)
+        # for i in range(0,26):
+        #     print(shiftCipher(decryptedStream[:30],i))
+        
         #END CIPHERTEXT 3 SETTINGS#
 
         
@@ -283,9 +350,9 @@ def main():
 
         #gramSearch(line[:1000],3)
         #vigenereKeyLengthTest(line)
-        #vigenereBinLetters(line,3)
-        #decrypted_8Text = vigenereDecrypt(line,"APP")
-        #print(decrypted_8Text.lower())
+        # vigenereBinLetters(line,3)
+        # decrypted_8Text = vigenereDecrypt(line,"APP")
+        # print(decrypted_8Text.lower())
 
         #END CIPHERTEXT 8#
 
@@ -314,10 +381,10 @@ def main():
 
         #CipherText 28 Settings
         
-        #gramSearch(line[:1000],3)
-        #vigenereBinLetters(line,8)
-        #decrypted-28Text = (vigenereDecrypt(line, "UFYUVSFE"))
-        #print("Decrypted Frequencies: ")
-        #print(decrypted-28Text)
+        # gramSearch(line[:1000],3)
+        # vigenereBinLetters(line,8)
+        # decrypted_28Text = (vigenereDecrypt(line, "UFYUVSFE"))
+        # # print("Decrypted Frequencies: ")
+        # print(decrypted_28Text)
 
 main()
